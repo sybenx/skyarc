@@ -37,9 +37,6 @@
 // Config
 #define MIN_WEATHER_INTERVAL_S (60 * 60 - 5)
 
-// Dial rotation (180 degrees = TRIG_MAX_ANGLE / 2, so midnight is at bottom)
-#define DIAL_OFFSET (TRIG_MAX_ANGLE / 2)
-
 // Constants
 #define STR_ARR_SIZE 49
 #define INIT_MIN_TEMP 50

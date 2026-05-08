@@ -28,15 +28,10 @@ static void reload_bitmaps() {
 /******************************************** Drawing *********************************************/
 
 static void draw_hour_chunk(GContext *ctx, GRect bounds, int hour, int inset, bool striped) {
-  // Raw (unrotated) angles used only for animation reveal check
-  const int raw_start_angle = (TRIG_MAX_ANGLE * hour) / 24;
-  const int raw_end_angle = (TRIG_MAX_ANGLE * (hour + 1)) / 24;
+  const int chunk_start_angle = (TRIG_MAX_ANGLE * hour) / 24;
+  const int chunk_end_angle = (TRIG_MAX_ANGLE * (hour + 1)) / 24;
 
-  if (raw_end_angle > s_anim_prog_angle) return;
-
-  // Rotated angles used for all drawing (180° = DIAL_OFFSET)
-  const int chunk_start_angle = raw_start_angle + DIAL_OFFSET;
-  const int chunk_end_angle = raw_end_angle + DIAL_OFFSET;
+  if (chunk_end_angle > s_anim_prog_angle) return;
 
   if (striped) {
     // OLD WAY
@@ -91,7 +86,7 @@ static void draw_outer_time_marker(GContext *ctx, GRect bounds, char* str, GColo
   const char m_arr[3] = {str[3], str[4], '\0'};
   const int hour = atoi(h_arr);
   const int mins = atoi(m_arr);
-  const int angle = ((hour * 60) + mins) * TRIG_MAX_ANGLE / MINUTES_PER_DAY + DIAL_OFFSET;
+  const int angle = ((hour * 60) + mins) * TRIG_MAX_ANGLE / MINUTES_PER_DAY;
   graphics_context_set_fill_color(ctx, color);
   graphics_fill_radial(
     ctx,
@@ -386,7 +381,7 @@ static void canvas_update_proc(Layer *layer, GContext *ctx) {
   graphics_context_set_stroke_width(ctx, 1);
   for (int i = 0; i < 24; i += 2) {
     GPoint dot_point = util_make_hand_point(
-      i + 12,  // +12/24 = 180° rotation
+      i,
       24,
       scl_x_pp({.o = 465, .e = 460, .g = 470}),
       center
@@ -415,8 +410,8 @@ static void canvas_update_proc(Layer *layer, GContext *ctx) {
       bounds,
       GOvalScaleModeFitCircle,
       OUTER_RING_INSET - 1,
-      DIAL_OFFSET,
-      DIAL_OFFSET + s_anim_prog_angle
+      0,
+      s_anim_prog_angle
     );
   }
 
@@ -504,19 +499,19 @@ static void canvas_update_proc(Layer *layer, GContext *ctx) {
     ctx,
     grect_inset(bounds, GEdgeInsets(INNER_RING_INSET -1)),
     GOvalScaleModeFitCircle,
-    DIAL_OFFSET,
-    DIAL_OFFSET + s_day_prog_angle
+    0,
+    s_day_prog_angle
   );
   const int notch_outer_radius = half_w - INNER_RING_INSET + 1;
   const int notch_inner_radius = notch_outer_radius - NOTCH_L - 5;
   GPoint day_notch_start = util_make_hand_point(
-    s_day_prog_angle + DIAL_OFFSET,
+    s_day_prog_angle,
     TRIG_MAX_ANGLE,
     notch_outer_radius,
     center
   );
   GPoint day_notch_end = util_make_hand_point(
-    s_day_prog_angle + DIAL_OFFSET,
+    s_day_prog_angle,
     TRIG_MAX_ANGLE,
     notch_inner_radius,
     center
